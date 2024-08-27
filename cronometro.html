@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cronômetro</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: black;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        #cronometro {
+            text-align: center;
+            color: white;
+            border: 7px solid white;
+            width: 700px;
+            height: 450px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: black;
+        }
+        #tempo {
+            font-size: 170px;
+        }
+        .warning {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div id="cronometro">
+        <div id="tempo">00:00</div>
+    </div>
+    <script>
+        let isRunning = false;
+        let timeRemaining = 0;
+        let lastUpdateTime = null;
+        let timerInterval;
+
+        const tempoElement = document.getElementById('tempo');
+
+        function updateLabel() {
+            const minutes = Math.floor(timeRemaining / 60);
+            const seconds = Math.floor(timeRemaining % 60);
+            tempoElement.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+            if (timeRemaining <= 10 && isRunning) {
+                tempoElement.classList.add('warning');
+            } else {
+                tempoElement.classList.remove('warning');
+            }
+        }
+
+        function updateTimer() {
+            if (isRunning) {
+                const currentTime = Date.now();
+                const elapsedTime = (currentTime - lastUpdateTime) / 1000;
+                lastUpdateTime = currentTime;
+
+                timeRemaining -= elapsedTime;
+                if (timeRemaining < 0) timeRemaining = 0;
+
+                updateLabel();
+
+                if (isRunning || timeRemaining > 0) {
+                    timerInterval = setTimeout(updateTimer, 100);
+                }
+            }
+        }
+
+        function start() {
+            if (!isRunning) {
+                isRunning = true;
+                lastUpdateTime = Date.now();
+                updateTimer();
+            }
+        }
+
+        function pause() {
+            isRunning = false;
+            clearTimeout(timerInterval);
+        }
+
+        function reset() {
+            isRunning = false;
+            timeRemaining = 0;
+            updateLabel();
+            clearTimeout(timerInterval);
+        }
+
+        function addTime(seconds) {
+            timeRemaining += seconds;
+            updateLabel();
+        }
+
+        function toggleStartPause() {
+            if (isRunning) {
+                pause();
+            } else {
+                start();
+            }
+        }
+
+        document.addEventListener('keydown', function(event) {
+            switch(event.key) {
+                case '1':
+                    addTime(60);
+                    break;
+                case '2':
+                    addTime(120);
+                    break;
+                case '3':
+                    addTime(30);
+                    break;
+                case '4':
+                    addTime(90);
+                    break;
+                case '0':
+                    reset();
+                    break;
+                case ' ':
+                    toggleStartPause();
+                    break;
+            }
+        });
+
+    </script>
+</body>
+</html>
